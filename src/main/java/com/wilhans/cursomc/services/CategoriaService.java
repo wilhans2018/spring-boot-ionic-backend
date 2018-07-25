@@ -9,22 +9,25 @@ import com.wilhans.cursomc.services.exceptions.ObjNotFoundException;
 
 @Service
 public class CategoriaService {
-	
+
 	@Autowired
 	private CategoriaRepository repo;
-	
-	public Categoria buscar(Integer id) {
-		Categoria obj  = repo.findOne(id);
+
+	public Categoria find(Integer id) {
+		Categoria obj = repo.findOne(id);
 		if (obj == null) {
-			throw new ObjNotFoundException("Objeto não encontrado! Id: " + id
-					+ ", tipo: " + Categoria.class.getName());
+			throw new ObjNotFoundException("Objeto não encontrado! Id: " + id + ", tipo: " + Categoria.class.getName());
 		}
 		return obj;
 	}
-	
-	
+
 	public Categoria insert(Categoria obj) {
 		obj.setId(null);
+		return repo.save(obj);
+	}
+
+	public Categoria update(Categoria obj) {
+		find(obj.getId());
 		return repo.save(obj);
 	}
 
