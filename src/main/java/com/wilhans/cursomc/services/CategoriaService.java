@@ -1,5 +1,7 @@
 package com.wilhans.cursomc.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,11 @@ public class CategoriaService {
 		return obj;
 	}
 
+	public List<Categoria> findAll() {
+		return repo.findAll();
+
+	}
+
 	public Categoria insert(Categoria obj) {
 		obj.setId(null);
 		return repo.save(obj);
@@ -37,11 +44,10 @@ public class CategoriaService {
 		find(id);
 		try {
 			repo.delete(id);
-			
+
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegreityException("Não é possível excluir uma categoria que possui produtos!!!");
 		}
-		
 
 	}
 
