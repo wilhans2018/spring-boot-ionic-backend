@@ -15,7 +15,6 @@ import com.wilhans.cursomc.domain.Endereco;
 import com.wilhans.cursomc.domain.enums.TipoCliente;
 import com.wilhans.cursomc.dto.ClienteDTO;
 import com.wilhans.cursomc.dto.ClienteNewDTO;
-import com.wilhans.cursomc.repositories.CidadeRepository;
 import com.wilhans.cursomc.repositories.ClienteRepository;
 import com.wilhans.cursomc.repositories.EnderecoRepository;
 import com.wilhans.cursomc.services.exceptions.DataIntegreityException;
@@ -26,9 +25,6 @@ public class ClienteService {
 
 	@Autowired
 	private ClienteRepository repo;
-	
-	@Autowired
-	private CidadeRepository cidadeRepository;
 
 	@Autowired
 	private EnderecoRepository enderecoRepository;
@@ -45,8 +41,14 @@ public class ClienteService {
 		return repo.findAll();
 
 	}
-
 	
+	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+		PageRequest pageRequest = new PageRequest(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		return repo.findAll(pageRequest);
+
+	}
+
+
 	public Cliente insert(Cliente obj) {
 		obj.setId(null);
 		obj = repo.save(obj);
@@ -74,16 +76,11 @@ public class ClienteService {
 			repo.delete(id);
 
 		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegreityException("Não é possível excluir !!!");
+			throw new DataIntegreityException("Não é possível excluir porque há pedidos relacionados !!!");
 		}
 
 	}
 
-	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
-		PageRequest pageRequest = new PageRequest(page, linesPerPage, Direction.valueOf(direction), orderBy);
-		return repo.findAll(pageRequest);
-
-	}
 
 	public Cliente fromDTO(ClienteDTO objDto) {
 		return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null);
@@ -93,7 +90,7 @@ public class ClienteService {
 		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(),
 				TipoCliente.toEnum(objDto.getTipo()));
 		Cidade cid = new Cidade(objDto.getCidadeId(), null, null);
-		//Cidade cid = cidadeRepository.findOne(objDto.getCidadeId());
+		// Cidade cid = cidadeRepository.findOne(objDto.getCidadeId());
 		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(),
 				objDto.getBairro(), objDto.getCep(), cli, cid);
 		cli.getEnderecos().add(end);
