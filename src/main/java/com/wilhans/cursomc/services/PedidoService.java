@@ -9,6 +9,7 @@ import com.wilhans.cursomc.domain.ItemPedido;
 import com.wilhans.cursomc.domain.PagamentoComBoleto;
 import com.wilhans.cursomc.domain.Pedido;
 import com.wilhans.cursomc.domain.enums.EstadoPagamento;
+import com.wilhans.cursomc.repositories.ClienteRepository;
 import com.wilhans.cursomc.repositories.ItemPedidoRepository;
 import com.wilhans.cursomc.repositories.PagamentoRepository;
 import com.wilhans.cursomc.repositories.PedidoRepository;
@@ -32,6 +33,12 @@ public class PedidoService {
 
 	@Autowired
 	private ItemPedidoRepository itemPedidoRepository;
+	
+	@Autowired
+	private ClienteRepository clienteRepository;
+	
+	@Autowired
+	private ClienteService clienteService;
 
 	public Pedido find(Integer id) {
 		Pedido obj = repo.findOne(id);
@@ -44,6 +51,7 @@ public class PedidoService {
 	public Pedido insert(Pedido obj) {
 		obj.setId(null);
 		obj.setInstante(new Date());
+		obj.setCliente(clienteService.find(obj.getCliente().getId()));
 		obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
 		obj.getPagamento().setPedido(obj);
 		
@@ -57,11 +65,13 @@ public class PedidoService {
 		pagamentoRepository.save(obj.getPagamento());
 		for (ItemPedido ip : obj.getItens()) {
 			ip.setDesconto(0.0);
-			ip.setPreco(produtoservice.find(ip.getProduto().getId()).getPreco());
+			ip.setProduto(produtoservice.find(ip.getProduto().getId()));
+			ip.setPreco(ip.getProduto().getPreco());
 			ip.setPedido(obj);
 		}
 
 		itemPedidoRepository.save(obj.getItens());
+		System.out.println(obj);
 
 		return obj;
 	}
