@@ -9,7 +9,6 @@ import com.wilhans.cursomc.domain.ItemPedido;
 import com.wilhans.cursomc.domain.PagamentoComBoleto;
 import com.wilhans.cursomc.domain.Pedido;
 import com.wilhans.cursomc.domain.enums.EstadoPagamento;
-import com.wilhans.cursomc.repositories.ClienteRepository;
 import com.wilhans.cursomc.repositories.ItemPedidoRepository;
 import com.wilhans.cursomc.repositories.PagamentoRepository;
 import com.wilhans.cursomc.repositories.PedidoRepository;
@@ -35,7 +34,9 @@ public class PedidoService {
 	private ItemPedidoRepository itemPedidoRepository;
 	
 	@Autowired
-	private ClienteRepository clienteRepository;
+	private EmailService emailService;
+	
+
 	
 	@Autowired
 	private ClienteService clienteService;
@@ -71,7 +72,7 @@ public class PedidoService {
 		}
 
 		itemPedidoRepository.save(obj.getItens());
-		System.out.println(obj);
+		emailService.sendOrderConfirmationEmail(obj);
 
 		return obj;
 	}
