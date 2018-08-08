@@ -32,17 +32,17 @@ public class ClienteService {
 
 	@Autowired
 	private EnderecoRepository enderecoRepository;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder pe;
 
 	public Cliente find(Integer id) {
 		UserSS user = UserService.authenticated();
-		
+
 		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
 			throw new AuthorizantionException("Acesso negado");
 		}
-		
+
 		Cliente obj = repo.findOne(id);
 		if (obj == null) {
 			throw new ObjNotFoundException("Objeto não encontrado! Id: " + id + ", tipo: " + Cliente.class.getName());
@@ -54,13 +54,25 @@ public class ClienteService {
 		return repo.findAll();
 
 	}
-	
+
 	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
 		PageRequest pageRequest = new PageRequest(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return repo.findAll(pageRequest);
 
 	}
 
+	public Cliente findByEmail(String email){
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.ADMIN) && !email.equals(user.getUsername())) {
+			throw new AuthorizantionException("Aesso negado");
+
+		}
+		Cliente obj = repo.findByEmail(email);
+		if (obj == null) {
+			throw new ObjNotFoundException("Objeto não encontrado! Id: " + user.getId() + ", tipo: " + Cliente.class.getName());
+		}
+		return obj;
+	}
 
 	public Cliente insert(Cliente obj) {
 		obj.setId(null);
@@ -93,7 +105,6 @@ public class ClienteService {
 		}
 
 	}
-
 
 	public Cliente fromDTO(ClienteDTO objDto) {
 		return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null, null);
